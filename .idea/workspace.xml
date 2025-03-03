@@ -5,10 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2280e52c-53a5-408a-8a68-bde2a8486688" name="Changes" comment="爬取内容">
-      <change afterPath="$PROJECT_DIR$/douban_data/insert.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doubanMovie.py" beforeDir="false" afterPath="$PROJECT_DIR$/doubanMovie.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools/mySqlHelper.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/mySqlHelper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BaiduHotSearch.py" beforeDir="false" afterPath="$PROJECT_DIR$/getData/BaiduHotSearch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doubanMovie.py" beforeDir="false" afterPath="$PROJECT_DIR$/getData/doubanMovie.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/crawlerTool.py" beforeDir="false" afterPath="$PROJECT_DIR$/getData/tools/crawlerTool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/mySqlHelper.py" beforeDir="false" afterPath="$PROJECT_DIR$/getData/tools/mySqlHelper.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +43,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.BaiduHotSearch.executor": "Run",
+    "Python.app.executor": "Run",
     "Python.doubanMovie.executor": "Run",
     "Python.insert.executor": "Run",
     "Python.root.executor": "Run",
@@ -50,6 +54,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\pythonCrawler\pythonProject\getData" />
       <recent name="D:\pythonCrawler\pythonProject\douban_data" />
       <recent name="D:\pythonCrawler\pythonProject\tools" />
     </key>
@@ -68,7 +73,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/BaiduHotSearch.py" />
+      <option name="SCRIPT_NAME" value="D:\pythonCrawler\pythonProject\getData\BaiduHotSearch.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -147,7 +152,15 @@
       <option name="project" value="LOCAL" />
       <updated>1739953338750</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="爬取内容">
+      <option name="closed" value="true" />
+      <created>1740146080473</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1740146080473</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
