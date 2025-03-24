@@ -1,19 +1,45 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import pymysql
+import hashlib
+import datetime
 
 # 创建 Flask 应用
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)  # 允许跨域请求并支持凭证
 
-# MySQL 连接配置（请替换为你的数据库信息）
+# 配置 session
+app.secret_key = '5f352379324c22463451387a0aec5d2f'  # 请在生产环境中使用强随机密钥
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=7)  # session有效期7天
+
+# MySQL 连接配置
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:321227@localhost:3306/spider_data?charset=utf8mb4'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # 初始化数据库
 db = SQLAlchemy(app)
+
+
+# 用户模型
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
+
+    def set_password(self, password):
+        # 使用SHA-256哈希密码（生产环境应使用更强的算法如 bcrypt）
+        self.password_hash = hashlib.sha256(password.encode()).hexdigest()
+
+    def check_password(self, password):
+        return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
 
 
 # 电影数据模型
@@ -30,6 +56,92 @@ class Movie(db.Model):
     release_date = db.Column(db.String(50))  # 修改为字符串类型，因为数据中可能有非数字年份
     genres = db.Column(db.Text)  # 可能有多个类型
     link = db.Column(db.String(255))
+
+
+# 用户注册
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+
+    # 检查必要字段
+    if not all(key in data for key in ['username', 'password', 'email']):
+        return jsonify({'success': False, 'message': '缺少必要的注册信息'}), 400
+
+    # 检查用户名是否已存在
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({'success': False, 'message': '用户名已存在'}), 400
+
+    # 检查邮箱是否已存在
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({'success': False, 'message': '邮箱已被注册'}), 400
+
+    # 创建新用户
+    try:
+        new_user = User(username=data['username'], email=data['email'])
+        new_user.set_password(data['password'])
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({'success': True, 'message': '注册成功', 'user_id': new_user.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'注册失败: {str(e)}'}), 500
+
+
+# 用户登录
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    # 检查必要字段
+    if not all(key in data for key in ['username', 'password']):
+        return jsonify({'success': False, 'message': '缺少用户名或密码'}), 400
+
+    # 查找用户
+    user = User.query.filter_by(username=data['username']).first()
+
+    # 验证密码
+    if user and user.check_password(data['password']):
+        # 更新最后登录时间
+        user.last_login = datetime.datetime.utcnow()
+        db.session.commit()
+
+        # 设置会话
+        session['user_id'] = user.id
+        session['username'] = user.username
+        session.permanent = True
+
+        return jsonify({'success': True, 'message': '登录成功', 'user_id': user.id, 'username': user.username})
+    else:
+        return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
+
+
+# 用户登出
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    # 清除会话
+    session.clear()
+    return jsonify({'success': True, 'message': '已成功登出'})
+
+
+# 获取当前用户信息
+@app.route('/api/user/current', methods=['GET'])
+def get_current_user():
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user:
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'created_at': user.created_at.isoformat() if user.created_at else None,
+                    'last_login': user.last_login.isoformat() if user.last_login else None
+                }
+            })
+
+    return jsonify({'success': False, 'message': '未登录'}), 401
 
 
 # API: 首页测试
@@ -231,6 +343,10 @@ def get_rating_stats():
         } if lowest_rated else {}
     })
 
+
+def create_tables():
+    with app.app_context():
+        db.create_all()
 
 # 运行 Flask
 if __name__ == '__main__':
